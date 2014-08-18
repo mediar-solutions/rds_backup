@@ -1,0 +1,15 @@
+cloud_storage:
+  access_key_id:
+  secret_access_key:
+mysql:
+  user:
+  password:
+  host:
+  database:
+aws:
+  access_key_id:
+  secret_access_key:
+email:
+  from_address: no-reply@example.com
+  to_addresses:
+    - git@example.com
