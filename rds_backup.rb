@@ -1,6 +1,7 @@
 require 'fog'
 require 'open3'
 require_relative 'yell_adapters/ses_adapter'
+require_relative 'yell_adapters/hipchat_adapter'
 
 class RdsBackup
   def initialize
@@ -45,11 +46,17 @@ class RdsBackup
 
   def config_logger(config)
     @logger = Yell.new do |l|
-      l.adapter :ses_adapter,
-      format: Yell::BasicFormat,
-      aws_access_key_id: config['aws']['access_key_id'],
-      aws_secret_access_key: config['aws']['secret_access_key'],
-      email_config: config['email']
+      l.adapter :ses_adapter, {
+        format: Yell::BasicFormat,
+        aws_access_key_id: config['aws']['access_key_id'],
+        aws_secret_access_key: config['aws']['secret_access_key'],
+        email_config: config['email']
+      }
+      l.adapter :hipchat_adapter, {
+        format: Yell::BasicFormat,
+        hipchat_token: config['hipchat']['token'],
+        hipchat_rooms: config['hipchat']['rooms']
+      }
     end
   end
 
