@@ -22,9 +22,9 @@ module RdsBackup
       dump_database
       upload_backup
       prune_old_backups
-    rescue
-      logger.error 'Exiting...'
+      remove_local_dump
     ensure
+      logger.info 'Exiting...'
       logger.close
     end
 
@@ -84,7 +84,7 @@ module RdsBackup
         logger.info 'Database dump successfully created'
       else
         logger.error "Error when dumping the database: #{err.strip}"
-        Open3.capture3 "rm -rf #{file_name}"
+        remove_local_dump
         fail RuntimeError
       end
     end
@@ -100,10 +100,7 @@ module RdsBackup
     end
 
     def upload_backup
-      fog_directory.files.create(
-        key: file_name,
-        body: File.open(file_name)
-      )
+      fog_directory.files.create(key: file_name, body: File.open(file_name))
       logger.info 'Backup uploaded to Google'
     rescue
       logger.error 'Error while uploading dump to Google'
@@ -117,6 +114,10 @@ module RdsBackup
       logger.info 'Old backups pruned'
     rescue
       logger.error 'Error while pruning old backups'
+    end
+
+    def remove_local_dump
+      Open3.capture3 "rm -rf #{file_name}"
     end
   end
 end

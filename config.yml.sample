@@ -6,6 +6,8 @@ mysql:
   password:
   host:
   database:
+  ssl: false
+  rds_cert_path: /home/user/rds_backup/mysql-ssl-ca-cert.pem
 aws:
   access_key_id:
   secret_access_key:
