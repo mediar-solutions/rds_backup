@@ -1,5 +1,6 @@
 require 'fog'
 require 'open3'
+require 'yaml'
 require_relative '../yell_adapters/ses_adapter'
 require_relative '../yell_adapters/hipchat_adapter'
 
@@ -13,10 +14,11 @@ module RdsBackup
 
       @backups_to_keep = config['backups_to_keep'] || 3
       current_utc_time = Time.now.getutc.strftime('%Y%m%d%H%M%S')
-      @file_name = "#{mysql_database}-#{current_utc_time}.sql.bz2"
+      @file_name = "#{mysql_database}-#{current_utc_time}.sql.gz"
     end
 
     def backup
+      logger.info 'Starting...'
       dump_database
       upload_backup
       prune_old_backups
@@ -93,7 +95,7 @@ module RdsBackup
       cmd += "--ssl_ca=#{rds_cert_path} " if mysql_ssl
       cmd += '--single-transaction --routines --triggers '\
              "-h #{mysql_host} #{mysql_database} "\
-             "| bzip2 -c > #{file_name}"
+             "| gzip -c > #{file_name}"
       cmd
     end
 
