@@ -8,14 +8,15 @@ Gem::Specification.new do |spec|
   spec.version       = RdsBackup::VERSION
   spec.authors       = ['Artur Rodrigues']
   spec.email         = ['arturhoo@gmail.com']
-  spec.description   = %q{Backup RDS Databases and sync them to multiple cloud providers}
-  spec.summary       = %q{Backup RDS Databases}
+  spec.description   = 'Backup RDS Databases and sync them to multiple cloud '\
+                       'providers'
+  spec.summary       = 'Backup RDS Databases'
   spec.homepage      = 'https://github.com/idxp/rds_backup'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files`.split($/)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
+  spec.executables   = spec.files.grep(/^bin\//) { |f| File.basename(f) }
+  spec.test_files    = spec.files.grep(/^(test|spec|features)\//)
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'bundler', '~> 1.3'

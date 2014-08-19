@@ -5,7 +5,7 @@ require_relative '../yell_adapters/hipchat_adapter'
 
 module RdsBackup
   class Backup
-    def initialize(config_file='config.yml')
+    def initialize(config_file = 'config.yml')
       config = YAML.load(File.open(config_file))
       config_google(config)
       config_mysql(config)
@@ -81,6 +81,7 @@ module RdsBackup
       cmd += '--single-transaction --routines --triggers '\
              "-h #{mysql_host} #{mysql_database} "\
              "| bzip2 -c > #{file_name}"
+      cmd
     end
 
     def upload_backup
