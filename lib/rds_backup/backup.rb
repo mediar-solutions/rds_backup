@@ -50,17 +50,26 @@ module RdsBackup
     end
 
     def config_logger(config)
-      @logger = Yell.new do |l|
-        l.adapter :ses_adapter,
-                  format: Yell::BasicFormat,
-                  aws_access_key_id: config['aws']['access_key_id'],
-                  aws_secret_access_key: config['aws']['secret_access_key'],
-                  email_config: config['email']
-        l.adapter :hipchat_adapter,
-                  format: Yell::BasicFormat,
-                  hipchat_token: config['hipchat']['token'],
-                  hipchat_rooms: config['hipchat']['rooms']
+      @logger = Yell.new do |yell_logger|
+        config['loggers'].each do |logger|
+          self.send("config_#{logger}_adapter", yell_logger, config)
+        end
       end
+    end
+
+    def config_ses_adapter(logger, config)
+      logger.adapter :ses_adapter,
+                     format: Yell::BasicFormat,
+                     aws_access_key_id: config['aws']['access_key_id'],
+                     aws_secret_access_key: config['aws']['secret_access_key'],
+                     email_config: config['email']
+    end
+
+    def config_hipchat_adapter(logger, config)
+      logger.adapter :hipchat_adapter,
+                     format: Yell::BasicFormat,
+                     hipchat_token: config['hipchat']['token'],
+                     hipchat_rooms: config['hipchat']['rooms']
     end
 
     def dump_database
