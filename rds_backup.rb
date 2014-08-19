@@ -16,10 +16,13 @@ class RdsBackup
   end
 
   def backup
-    dump_database
-    upload_backup
-    prune_old_backups
-    logger.close
+    begin
+      dump_database
+      upload_backup
+      prune_old_backups
+    rescue
+      logger.close
+    end
   end
 
   private
@@ -70,6 +73,8 @@ class RdsBackup
       logger.info 'Database dump successfully created'
     else
       logger.error "Error when dumping the database: #{err.strip}"
+      Open3.capture3 "rm -rf #{file_name}"
+      fail RuntimeError
     end
   end
 
