@@ -27,7 +27,7 @@ class HipchatAdapter < Yell::Adapters::Base
     color = errors? ? 'red' : 'green'
     hipchat_rooms.each do |room|
       hipchat[room].send('RDS Backup', body_text, message_format: 'html',
-                         color: color)
+                                                  color: color)
     end
   end
 
