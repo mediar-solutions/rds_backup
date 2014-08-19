@@ -6,7 +6,7 @@ class SesAdapter < Yell::Adapters::Base
   include Yell::Helpers::Base
   include Yell::Helpers::Formatter
 
-  attr_accessor :ses, :body_text, :email_config
+  attr_accessor :ses, :body_text, :email_config, :errors
 
   setup do |options|
     self.formatter = options[:format]
@@ -16,19 +16,32 @@ class SesAdapter < Yell::Adapters::Base
     )
     self.email_config = options[:email_config]
     self.body_text = ''
+    self.errors = false
   end
 
   write do |event|
     self.body_text += formatter.call(event)
+    self.errors = true if event.level >= 3
   end
 
   close do
+    subject = format_subject(email_config['subject'])
     ses.send_email(
-      subject: 'Test email',
+      subject: subject,
       from: email_config['from_address'],
       to: email_config['to_addresses'],
       body_text: body_text
     )
+  end
+
+  private
+
+  def errors?
+    errors
+  end
+
+  def format_subject(base_subject)
+    errors? ? "Error: #{base_subject}" : "Sucess: #{base_subject}"
   end
 end
 
