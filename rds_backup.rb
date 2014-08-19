@@ -21,13 +21,15 @@ class RdsBackup
       upload_backup
       prune_old_backups
     rescue
+    ensure
       logger.close
     end
   end
 
   private
 
-  attr_accessor :mysql_database, :mysql_host, :mysql_user, :mysql_password, :fog_directory, :file_name, :backups_to_keep, :logger
+  attr_accessor :mysql_database, :mysql_host, :mysql_user, :mysql_password,
+                :fog_directory, :file_name, :backups_to_keep, :logger
 
   def config_mysql(config)
     @mysql_database = config['mysql']['database']
@@ -66,7 +68,9 @@ class RdsBackup
   def dump_database
     cmd = "mysqldump -u#{mysql_user} "
     cmd += "-p#{mysql_password} " if mysql_password
-    cmd += "-h #{mysql_host} #{mysql_database} | bzip2 -c > #{file_name}"
+    cmd += "--single-transaction --routines --triggers "\
+           "-h #{mysql_host} #{mysql_database} "\
+           "| bzip2 -c > #{file_name}"
     out, err, _status = Open3.capture3 cmd
 
     if err.empty?
@@ -86,7 +90,7 @@ class RdsBackup
       )
       logger.info 'Backup uploaded to Google'
     rescue
-      logger.erro 'Error while uploading dump to Google'
+      logger.error 'Error while uploading dump to Google'
     end
   end
 
