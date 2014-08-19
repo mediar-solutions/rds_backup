@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = RdsBackup::VERSION
   spec.authors       = ['Artur Rodrigues']
   spec.email         = ['arturhoo@gmail.com']
-  spec.description   = 'Backup RDS Databases and sync them to multiple cloud '\
+  spec.description   = 'Backs up RDS Databases and sync them to multiple cloud '\
                        'providers'
-  spec.summary       = 'Backup RDS Databases'
+  spec.summary       = 'Offsite and offprovider backups for RDS Databases'
   spec.homepage      = 'https://github.com/idxp/rds_backup'
   spec.license       = 'MIT'
 

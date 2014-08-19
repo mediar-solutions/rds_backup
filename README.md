@@ -1,5 +1,7 @@
 # RDS Backup
 
+This gem backs up RDS databases to different cloud providers, granting an extra level of mind peacefulness.
+
 ## Installation
 
 `rds_backup` should be run as a command line tool, so it makes sense to install it globally
