@@ -29,13 +29,16 @@ module RdsBackup
     private
 
     attr_accessor :mysql_database, :mysql_host, :mysql_user, :mysql_password,
-                  :fog_directory, :file_name, :backups_to_keep, :logger
+                  :mysql_ssl, :rds_cert_path, :fog_directory, :file_name,
+                  :backups_to_keep, :logger
 
     def config_mysql(config)
       @mysql_database = config['mysql']['database']
       @mysql_host = config['mysql']['host']
       @mysql_user = config['mysql']['user']
       @mysql_password = config['mysql']['password']
+      @mysql_ssl = config['mysql']['ssl']
+      @rds_cert_path = config['mysql']['rds_cert_path'] if @mysql_ssl
     end
 
     def config_google(config)
@@ -87,6 +90,7 @@ module RdsBackup
     def mysqldump_cmd
       cmd = "mysqldump -u#{mysql_user} "
       cmd += "-p#{mysql_password} " if mysql_password
+      cmd += "--ssl_ca=#{rds_cert_path} " if mysql_ssl
       cmd += '--single-transaction --routines --triggers '\
              "-h #{mysql_host} #{mysql_database} "\
              "| bzip2 -c > #{file_name}"

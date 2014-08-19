@@ -24,6 +24,14 @@ Then, simply run the gem's binary:
 $ rds_backup
 ```
 
+### Cron Usage
+
+This tool is usually scheduled in cron, below is an example
+
+```
+0 3 * * * . $HOME/.profile; cd $HOME/rds_backup && rds_backup >> /var/log/rds_backup/rds_backup.log 2>&1
+```
+
 ## Roadmap
 
 * Tests
