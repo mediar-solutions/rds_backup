@@ -52,7 +52,7 @@ module RdsBackup
     def config_logger(config)
       @logger = Yell.new do |yell_logger|
         config['loggers'].each do |logger|
-          self.send("config_#{logger}_adapter", yell_logger, config)
+          send("config_#{logger}_adapter", yell_logger, config)
         end
       end
     end
