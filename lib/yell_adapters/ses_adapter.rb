@@ -24,7 +24,8 @@ class SesAdapter < Yell::Adapters::Base
   end
 
   close do
-    subject = format_subject(email_config['subject'])
+    base_subject = email_config['subject'] + Time.now.utc.strftime(' %Y/%m/%d')
+    subject = format_subject(base_subject)
     ses.send_email(
       subject: subject,
       from: email_config['from_address'],
