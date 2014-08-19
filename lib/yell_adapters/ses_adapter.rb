@@ -1,6 +1,5 @@
 require 'yell'
 require 'aws-sdk'
-require 'pry-byebug'
 
 class SesAdapter < Yell::Adapters::Base
   include Yell::Helpers::Base

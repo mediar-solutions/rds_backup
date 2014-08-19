@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'rds_backup'
+rescue LoadError
+  require 'rubygems'
+  require 'rds_backup'
+end
+
+rb = RdsBackup::Backup.new
+rb.backup
