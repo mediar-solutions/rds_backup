@@ -1,25 +1,24 @@
 require 'fog'
 require 'open3'
-require_relative 'custom_logger'
+require_relative 'yell_adapters/ses_adapter'
 
 class RdsBackup
   def initialize
     config = YAML.load(File.open('config.yml'))
     config_google(config)
     config_mysql(config)
+    config_logger(config)
 
     @backups_to_keep = config['backups_to_keep'] || 3
-
     current_utc_time = Time.now.getutc.strftime('%Y%m%d%H%M%S')
     @file_name = "#{mysql_database}-#{current_utc_time}.sql.bz2"
-
-    @logger = CustomLogger.new
   end
 
   def backup
     dump_database
     upload_backup
     prune_old_backups
+    logger.close
   end
 
   private
@@ -44,6 +43,16 @@ class RdsBackup
     @fog_directory = connection.directories.get('idxp-rds-backup')
   end
 
+  def config_logger(config)
+    @logger = Yell.new do |l|
+      l.adapter :ses_adapter,
+      format: Yell::BasicFormat,
+      aws_access_key_id: config['aws']['access_key_id'],
+      aws_secret_access_key: config['aws']['secret_access_key'],
+      email_config: config['email']
+    end
+  end
+
   def dump_database
     cmd = "mysqldump -u#{mysql_user} "
     cmd += "-p#{mysql_password} " if mysql_password
@@ -51,23 +60,33 @@ class RdsBackup
     out, err, _status = Open3.capture3 cmd
 
     if err.empty?
-      logger.log(0, 'Everything went fine')
+      logger.info 'Database dump successfully created'
     else
-      logger.log(1, 'Something went wrong')
+      logger.error "Error when dumping the database: #{err.strip}"
     end
   end
 
   def upload_backup
-    fog_directory.files.create(
-      key: file_name,
-      body: File.open(file_name)
-    )
+    begin
+      fog_directory.files.create(
+        key: file_name,
+        body: File.open(file_name)
+      )
+      logger.info 'Backup uploaded to Google'
+    rescue
+      logger.erro 'Error while uploading dump to Google'
+    end
   end
 
   def prune_old_backups
-    sorted_files = fog_directory.files.reload.sort do |x, y|
-      x.last_modified <=> y.last_modified
+    begin
+      sorted_files = fog_directory.files.reload.sort do |x, y|
+        x.last_modified <=> y.last_modified
+      end
+      sorted_files[0 .. -backups_to_keep - 1].each { |f| f.destroy }
+      logger.info 'Old backups pruned'
+    rescue
+      logger.error 'Error while pruning old backups'
     end
-    sorted_files[0 .. -backups_to_keep - 1].each { |f| f.destroy }
   end
 end
