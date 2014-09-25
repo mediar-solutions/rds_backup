@@ -1,5 +1,7 @@
 # RDS Backup
 
+[![Code Climate](https://codeclimate.com/repos/541c35efe30ba0721e03ecd2/badges/b5fa8a7cfcaf16d58331/gpa.svg)](https://codeclimate.com/repos/541c35efe30ba0721e03ecd2/feed)
+
 This gem backs up RDS databases to different cloud providers, granting an extra level of mind peacefulness.
 
 ## Installation
